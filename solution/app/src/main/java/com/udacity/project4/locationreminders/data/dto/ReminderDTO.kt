@@ -15,13 +15,12 @@ import java.util.*
  * @param longitude     longitude of the reminder location
  * @param id          id of the reminder
  */
-
 @Entity(tableName = "reminders")
 data class ReminderDTO(
-    @ColumnInfo(name = "title") var title: String?,
-    @ColumnInfo(name = "description") var description: String?,
-    @ColumnInfo(name = "location") var location: String?,
-    @ColumnInfo(name = "latitude") var latitude: Double?,
-    @ColumnInfo(name = "longitude") var longitude: Double?,
+    var title: String?,
+    var description: String?,
+    var location: String?,
+    var latitude: Double?,
+    var longitude: Double?,
     @PrimaryKey @ColumnInfo(name = "entry_id") val id: String = UUID.randomUUID().toString()
 )
