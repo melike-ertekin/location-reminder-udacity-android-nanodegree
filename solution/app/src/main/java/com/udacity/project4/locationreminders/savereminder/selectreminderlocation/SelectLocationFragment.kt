@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
@@ -40,9 +41,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
-
         setupGoogleMap()
-//        TODO: add style to the map
 
         return binding.root
     }
@@ -82,6 +81,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
+
+        map.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                requireContext(),
+                R.raw.map_style
+            )
+        )
 
         val markerOptions = MarkerOptions()
             .position(map.cameraPosition.target)
@@ -123,6 +129,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startAtCurrentLocation() {
         if (!LocationUtils.hasLocationPermissions()) {
             LocationUtils.requestPermissions {
@@ -132,12 +139,22 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             return
         }
 
-        LocationUtils.requestSingleUpdate {
-            selectedLocationMarker.position = it.toLatLng()
-            placeOfInterest = PointOfInterest(selectedLocationMarker.position, null, null)
+        fun resetToCurrentLocation() =
+            LocationUtils.requestSingleUpdate {
+                selectedLocationMarker.position = it.toLatLng()
+                placeOfInterest = PointOfInterest(selectedLocationMarker.position, null, null)
 
-            setCameraTo(selectedLocationMarker.position)
+                setCameraTo(selectedLocationMarker.position)
+            }
+
+        map.isMyLocationEnabled = true
+
+        map.setOnMyLocationButtonClickListener {
+            resetToCurrentLocation()
+            true
         }
+
+        resetToCurrentLocation()
     }
 
     private fun setCameraTo(latLng: LatLng) {
