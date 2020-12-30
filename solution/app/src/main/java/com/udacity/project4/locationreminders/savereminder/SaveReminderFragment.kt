@@ -14,7 +14,7 @@ import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
-    override val baseViewModel: SaveReminderViewModel by inject()
+    override val viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
 
     override fun onCreateView(
@@ -26,7 +26,7 @@ class SaveReminderFragment : BaseFragment() {
 
         setDisplayHomeAsUpEnabled(true)
 
-        binding.viewModel = baseViewModel
+        binding.viewModel = viewModel
 
         return binding.root
     }
@@ -36,16 +36,17 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
-            baseViewModel.navigationCommand.value =
+            viewModel.navigationCommand.value =
                 NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
         }
 
         binding.saveReminder.setOnClickListener {
-            val title = baseViewModel.reminderTitle.value
-            val description = baseViewModel.reminderDescription
-            val location = baseViewModel.reminderSelectedLocationStr.value
-            val latitude = baseViewModel.latitude
-            val longitude = baseViewModel.longitude.value
+            val title = viewModel.reminderTitle.value
+            val description = viewModel.reminderDescription
+
+            val poi = viewModel.selectedPlaceOfInterest.value
+            val latitude = poi?.latLng?.latitude ?: 0.0
+            val longitude = poi?.latLng?.longitude ?: 0.0
 
 //            TODO: use the user entered reminder details to:
 //             1) add a geofencing request
@@ -56,6 +57,6 @@ class SaveReminderFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         //make sure to clear the view model after destroy, as it's a single view model.
-        baseViewModel.onClear()
+        viewModel.onClear()
     }
 }

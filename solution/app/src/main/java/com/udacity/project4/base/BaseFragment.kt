@@ -12,28 +12,28 @@ abstract class BaseFragment : PermissionManager() {
     /**
      * Every fragment has to have an instance of a view model that extends from the BaseViewModel
      */
-    abstract val baseViewModel: BaseViewModel
+    abstract val viewModel: BaseViewModel
 
     override fun onStart() {
         super.onStart()
 
-        baseViewModel.showErrorMessage.observe(this) {
+        viewModel.showErrorMessage.observe(this) {
             Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
         }
 
-        baseViewModel.showToast.observe(this) {
+        viewModel.showToast.observe(this) {
             Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
         }
 
-        baseViewModel.showSnackBar.observe(this) {
+        viewModel.showSnackBar.observe(this) {
             Snackbar.make(this.requireView(), it, Snackbar.LENGTH_LONG).show()
         }
 
-        baseViewModel.showSnackBarInt.observe(this) {
+        viewModel.showSnackBarInt.observe(this) {
             Snackbar.make(this.requireView(), getString(it), Snackbar.LENGTH_LONG).show()
         }
 
-        baseViewModel.navigationCommand.observe(this) { command ->
+        viewModel.navigationCommand.observe(this) { command ->
             when (command) {
                 is NavigationCommand.To -> findNavController().navigate(command.directions)
                 is NavigationCommand.Back -> findNavController().popBackStack()
