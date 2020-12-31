@@ -14,7 +14,8 @@
         android:id="@+id/reminderCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/padding_medium"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="5dp"
         android:fadeVisible="@{true}">
 
         <androidx.constraintlayout.widget.ConstraintLayout

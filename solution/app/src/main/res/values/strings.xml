@@ -45,4 +45,7 @@
     <string name="save_the_location">Save the location</string>
     <string name="map_fragment">map_fragment</string>
     <string name="save_reminder">Save Reminder</string>
+    <string name="add_reminder">Add Reminder</string>
+    <string name="login_required">Login Required</string>
+    <string name="select_method_of_login">Select Method of Login</string>
 </resources>
