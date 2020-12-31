@@ -14,7 +14,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:background="@drawable/reminders_background"
+        android:background="@drawable/dark_reminders_background"
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
@@ -112,7 +112,6 @@
 
                 </LinearLayout>
 
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
@@ -127,9 +126,6 @@
             android:fadeVisible="@{!viewModel.showLoading.booleanValue()}"
             android:text="@string/save_reminder"
             app:fabSize="normal"
-            app:backgroundTint="@color/colorPrimary"
-            android:textColor="@android:color/white"
-            app:iconTint="@color/design_default_color_on_primary"
             app:icon="@drawable/ic_save" />
 
         <ProgressBar
