@@ -4,23 +4,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
+import com.udacity.project4.utils.dp
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
-    //Get the view model this time as a single to be shared with the another fragment
     override val viewModel: SaveReminderViewModel by inject()
+
     private lateinit var binding: FragmentSaveReminderBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_save_reminder, container, false)
 
@@ -34,11 +36,13 @@ class SaveReminderFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
-        binding.selectLocation.setOnClickListener {
-            //            Navigate to another fragment to get the user location
+
+        binding.selectLocationLayout.setOnClickListener {
             viewModel.navigationCommand.value =
                 NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
         }
+
+        ViewCompat.setElevation(binding.progressBar, 100.dp)
 
         binding.saveReminder.setOnClickListener {
             val title = viewModel.reminderTitle.value
