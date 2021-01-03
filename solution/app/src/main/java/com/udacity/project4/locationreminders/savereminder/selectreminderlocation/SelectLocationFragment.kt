@@ -76,6 +76,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun onLocationSelected() {
+        selectLocationViewModel.closeRadiusSelector()
         viewModel.setSelectedLocation(selectLocationViewModel.selectedLocation.value!!)
         viewModel.setSelectedRadius(selectLocationViewModel.radius.value!!)
         viewModel.navigationCommand.postValue(NavigationCommand.Back)
@@ -83,6 +84,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        selectLocationViewModel.closeRadiusSelector()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -183,6 +189,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map.isMyLocationEnabled = true
 
         map.setOnMyLocationButtonClickListener {
+            selectLocationViewModel.closeRadiusSelector()
             resetToCurrentLocation()
             true
         }
