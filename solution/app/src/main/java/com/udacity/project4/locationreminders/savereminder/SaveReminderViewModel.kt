@@ -21,9 +21,13 @@ class SaveReminderViewModel(val app: Application, private val dataSource: Remind
     val reminderDescription = MutableLiveData<String>()
 
     private val _selectedPlaceOfInterest = MutableLiveData<PointOfInterest>()
+    private val _selectedRadius = MutableLiveData<Float>()
 
     val selectedPlaceOfInterest: LiveData<PointOfInterest>
         get() = _selectedPlaceOfInterest
+
+    val selectedRadius: LiveData<Float>
+        get() = _selectedRadius
 
     val selectedPlaceOfInterestName = Transformations.map(_selectedPlaceOfInterest) {
         if (it == null) {
@@ -71,6 +75,7 @@ class SaveReminderViewModel(val app: Application, private val dataSource: Remind
                     reminderData.location,
                     reminderData.latitude,
                     reminderData.longitude,
+                    reminderData.radius,
                     reminderData.id
                 )
             )
@@ -98,5 +103,9 @@ class SaveReminderViewModel(val app: Application, private val dataSource: Remind
 
     fun setSelectedLocation(placeOfInterest: PointOfInterest) {
         _selectedPlaceOfInterest.postValue(placeOfInterest)
+    }
+
+    fun setSelectedRadius(radius: Float) {
+        _selectedRadius.postValue(radius)
     }
 }

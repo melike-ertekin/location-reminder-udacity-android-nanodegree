@@ -13,6 +13,7 @@ import java.util.*
  * @param location      location name of the reminder
  * @param latitude      latitude of the reminder location
  * @param longitude     longitude of the reminder location
+ * @param radius      Radius of the Reminder's geofence
  * @param id          id of the reminder
  */
 @Entity(tableName = "reminders")
@@ -22,5 +23,6 @@ data class ReminderDTO(
     var location: String?,
     var latitude: Double?,
     var longitude: Double?,
+    var radius: Float?,
     @PrimaryKey @ColumnInfo(name = "entry_id") val id: String = UUID.randomUUID().toString()
 )

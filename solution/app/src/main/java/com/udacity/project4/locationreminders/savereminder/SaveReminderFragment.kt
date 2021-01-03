@@ -65,8 +65,9 @@ class SaveReminderFragment : BaseFragment() {
             val poi = viewModel.selectedPlaceOfInterest.value
             val latitude = poi?.latLng?.latitude ?: 0.0
             val longitude = poi?.latLng?.longitude ?: 0.0
+            val radius = viewModel.selectedRadius.value
 
-            val reminderData = ReminderDataItem(title, description, poi?.name, latitude, longitude)
+            val reminderData = ReminderDataItem(title, description, poi?.name, latitude, longitude, radius)
 
             if (viewModel.validateAndSaveReminder(reminderData)) {
                 addGeofence(reminderData)
@@ -81,7 +82,7 @@ class SaveReminderFragment : BaseFragment() {
             .setCircularRegion(
                 reminderData.latitude!!,
                 reminderData.longitude!!,
-                GeofenceConstants.RADIUS_IN_METRES
+                reminderData.radius!!
             )
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)

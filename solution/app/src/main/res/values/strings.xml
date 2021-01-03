@@ -48,4 +48,5 @@
     <string name="add_reminder">Add Reminder</string>
     <string name="login_required">Login Required</string>
     <string name="select_method_of_login">Select Method of Login</string>
+    <string name="radius">Radius</string>
 </resources>

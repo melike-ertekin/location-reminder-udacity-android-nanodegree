@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -13,21 +14,25 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.LocationUtils
 import com.udacity.project4.utils.PermissionsResultEvent
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.toLatLng
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
+
     override val viewModel: SaveReminderViewModel by inject()
+    private val selectLocationViewModel: SelectLocationViewModel by viewModel()
 
     private lateinit var binding: FragmentSelectLocationBinding
+
     private lateinit var map: GoogleMap
     private lateinit var selectedLocationMarker: Marker
-
-    private lateinit var placeOfInterest: PointOfInterest
+    private lateinit var selectedLocationCircle: Circle
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,6 +43,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         binding.lifecycleOwner = this
         binding.onSaveButtonClicked = View.OnClickListener { onLocationSelected() }
+        binding.viewModel = selectLocationViewModel
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
@@ -51,11 +57,27 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             .findFragmentByTag(getString(R.string.map_fragment)) as? SupportMapFragment
             ?: return
 
+        selectLocationViewModel.radius.observe(viewLifecycleOwner) {
+            if (!::selectedLocationCircle.isInitialized) {
+                return@observe
+            }
+
+            selectedLocationCircle.radius =
+                it?.toDouble() ?: GeofenceConstants.DEFAULT_RADIUS_IN_METRES.toDouble()
+        }
+
+        selectLocationViewModel.selectedLocation.observe(viewLifecycleOwner) {
+            selectedLocationMarker.position = it.latLng
+            selectedLocationCircle.center = it.latLng
+            setCameraTo(it.latLng)
+        }
+
         mapFragment.getMapAsync(this)
     }
 
     private fun onLocationSelected() {
-        viewModel.setSelectedLocation(placeOfInterest)
+        viewModel.setSelectedLocation(selectLocationViewModel.selectedLocation.value!!)
+        viewModel.setSelectedRadius(selectLocationViewModel.radius.value!!)
         viewModel.navigationCommand.postValue(NavigationCommand.Back)
     }
 
@@ -96,25 +118,39 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         selectedLocationMarker = map.addMarker(markerOptions)
 
+        val circleOptions = CircleOptions()
+            .center(map.cameraPosition.target)
+            .fillColor(ResourcesCompat.getColor(resources, R.color.map_radius_fill_color, null))
+            .strokeColor(ResourcesCompat.getColor(resources, R.color.map_radius_stroke_color, null))
+            .strokeWidth(4f)
+            .radius(GeofenceConstants.DEFAULT_RADIUS_IN_METRES.toDouble())
+
+        selectedLocationCircle = map.addCircle(circleOptions)
+
         viewModel.selectedPlaceOfInterest.value.let {
-            placeOfInterest = it ?: PointOfInterest(map.cameraPosition.target, null, null)
+            selectLocationViewModel.setSelectedLocation(
+                it ?: PointOfInterest(map.cameraPosition.target, null, null)
+            )
 
             if (it == null) {
                 startAtCurrentLocation()
-            } else {
-                selectedLocationMarker.position = it.latLng
-                setCameraTo(it.latLng)
             }
         }
 
         map.setOnMapClickListener {
-            selectedLocationMarker.position = it
-            placeOfInterest = PointOfInterest(it, null, null)
+            if (selectLocationViewModel.isRadiusSelectorOpen.value == true) {
+                selectLocationViewModel.closeRadiusSelector()
+            } else {
+                selectLocationViewModel.setSelectedLocation(it)
+            }
         }
 
         map.setOnPoiClickListener {
-            selectedLocationMarker.position = it.latLng
-            placeOfInterest = it
+            if (selectLocationViewModel.isRadiusSelectorOpen.value == true) {
+                selectLocationViewModel.closeRadiusSelector()
+            } else {
+                selectLocationViewModel.setSelectedLocation(it)
+            }
         }
     }
 
@@ -141,10 +177,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         fun resetToCurrentLocation() =
             LocationUtils.requestSingleUpdate {
-                selectedLocationMarker.position = it.toLatLng()
-                placeOfInterest = PointOfInterest(selectedLocationMarker.position, null, null)
-
-                setCameraTo(selectedLocationMarker.position)
+                selectLocationViewModel.setSelectedLocation(it.toLatLng())
             }
 
         map.isMyLocationEnabled = true
