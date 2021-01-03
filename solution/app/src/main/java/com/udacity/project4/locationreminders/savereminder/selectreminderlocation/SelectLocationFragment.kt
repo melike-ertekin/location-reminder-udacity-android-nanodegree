@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.slider.Slider
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -44,6 +45,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
         binding.onSaveButtonClicked = View.OnClickListener { onLocationSelected() }
         binding.viewModel = selectLocationViewModel
+
+        binding.radiusSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
+            }
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                selectLocationViewModel.closeRadiusSelector()
+            }
+        })
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
@@ -158,6 +168,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 selectLocationViewModel.setSelectedLocation(it)
             }
         }
+
+        map.setOnCameraMoveListener {
+            selectLocationViewModel.zoomValue = map.cameraPosition.zoom
+        }
     }
 
     private fun locationPermissionHandler(event: PermissionsResultEvent, handler: () -> Unit) {
@@ -198,7 +212,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun setCameraTo(latLng: LatLng) {
-        val cameraPosition = CameraPosition.fromLatLngZoom(latLng, 15f)
+        val cameraPosition =
+            CameraPosition.fromLatLngZoom(latLng, selectLocationViewModel.zoomValue)
         val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition)
 
         map.animateCamera(cameraUpdate)
