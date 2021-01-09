@@ -6,6 +6,7 @@ import android.app.Application
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.google.android.gms.maps.model.LatLng
@@ -17,11 +18,15 @@ fun Location.toLatLng() = LatLng(latitude, longitude)
 object LocationUtils {
     private const val PROVIDER = LocationManager.GPS_PROVIDER
 
-    private val locationPermissions = arrayOf(
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-    )
+    private val locationPermissions =
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        } else {
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
 
     private val requestExecutor by lazy { Executors.newSingleThreadExecutor() }
 
