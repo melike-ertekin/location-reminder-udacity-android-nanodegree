@@ -56,6 +56,10 @@ android {
             java.srcDirs += sharedTestSourceDir
         }
     }
+
+    packagingOptions {
+        pickFirst "META-INF/*"
+    }
 }
 
 dependencies {
